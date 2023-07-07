@@ -1,7 +1,13 @@
 # GitHub Settings
 
+<!--status-badges start -->
+
+[![Powered by Vercel][vercel-badge]][vercel-link]
+
 [![Node CI Workflow Status][github-actions-ci-badge]][github-actions-ci-link]
-[![Dependabot][dependabot-badge]][dependabot-link]
+[![Renovate][renovate-badge]][renovate-link]
+
+<!--status-badges end -->
 
 This GitHub App syncs repository settings defined in `.github/settings.yml` to GitHub, enabling Pull Requests for repository settings.
 
@@ -16,7 +22,7 @@ All top-level settings are optional. Some plugins do have required fields.
 # These settings are synced to GitHub by https://probot.github.io/apps/settings/
 
 repository:
-  # See https://developer.github.com/v3/repos/#edit for all available settings.
+  # See https://docs.github.com/en/rest/reference/repos#update-a-repository for all available settings.
 
   # The name of the repository. Changing this will rename the repository
   name: repo-name
@@ -61,6 +67,9 @@ repository:
   # rebase-merging.
   allow_rebase_merge: true
 
+  # Either `true` to enable automatic deletion of branches on merge, or `false` to disable
+  delete_branch_on_merge: true
+
   # Either `true` to enable automated security fixes, or `false` to disable
   # automated security fixes.
   enable_automated_security_fixes: true
@@ -80,9 +89,9 @@ labels:
     color: '#336699'
     description: New functionality.
 
-  - name: first-timers-only
-    # include the old name to rename an existing label
-    oldname: Help Wanted
+  - name: Help Wanted
+    # Provide a new name to rename an existing label
+    new_name: first-timers-only
 
 # Milestones: define milestones for Issues and Pull Requests
 milestones:
@@ -92,22 +101,41 @@ milestones:
     state: open
 
 # Collaborators: give specific users access to this repository.
-# See https://developer.github.com/v3/repos/collaborators/#add-user-as-a-collaborator for available options
+# See https://docs.github.com/en/rest/reference/repos#add-a-repository-collaborator for available options
 collaborators:
-  - username: bkeepers
-    # Note: Only valid on organization-owned repositories.
-    # The permission to grant the collaborator. Can be one of:
-    # * `pull` - can pull, but not push to or administer this repository.
-    # * `push` - can pull and push, but not administer this repository.
-    # * `admin` - can pull, push and administer this repository.
-    # * `maintain` - Recommended for project managers who need to manage the repository without access to sensitive or destructive actions.
-    # * `triage` - Recommended for contributors who need to proactively manage issues and pull requests without write access.
-    permission: push
+  # - username: bkeepers
+  #   permission: push
+  # - username: hubot
+  #   permission: pull
 
-  - username: hubot
-    permission: pull
+  # Note: `permission` is only valid on organization-owned repositories.
+  # The permission to grant the collaborator. Can be one of:
+  # * `pull` - can pull, but not push to or administer this repository.
+  # * `push` - can pull and push, but not administer this repository.
+  # * `admin` - can pull, push and administer this repository.
+  # * `maintain` - Recommended for project managers who need to manage the repository without access to sensitive or destructive actions.
+  # * `triage` - Recommended for contributors who need to proactively manage issues and pull requests without write access.
 
-# See https://developer.github.com/v3/teams/#add-or-update-team-repository for available options
+# See https://docs.github.com/en/rest/deployments/environments#create-or-update-an-environment for available options
+# Note: deployment_branch_policy differs from the API for ease of use. Either protected_branches (boolean) OR custom_branches (array of strings) can be provided; this will manage the API requirements under the hood. See https://docs.github.com/en/rest/deployments/branch-policies for documentation of custom_branches. If both are provided in an unexpected manner, protected_branches will be used.
+# Either removing or simply not setting deployment_branch_policy will restore the default 'All branches' setting.
+environments:
+  - name: production
+    wait_timer: 5
+    reviewers:
+      - id: 1
+        type: 'Team'
+      - id: 2
+        type: 'User'
+    deployment_branch_policy:
+      protected_branches: true
+  - name: development
+    deployment_branch_policy:
+      custom_branches:
+        - main
+        - dev/*
+
+# See https://docs.github.com/en/rest/reference/teams#add-or-update-team-repository-permissions for available options
 teams:
   - name: core
     # The permission to grant the team. Can be one of:
@@ -122,7 +150,7 @@ teams:
 
 branches:
   - name: master
-    # https://developer.github.com/v3/repos/branches/#update-branch-protection
+    # https://docs.github.com/en/rest/reference/repos#update-branch-protection
     # Branch Protection settings. Set to null to disable
     protection:
       # Required. Require at least one approving review on a pull request, before merging. Set to null to disable.
@@ -161,7 +189,7 @@ branches:
 
 ### Inheritance
 
-This app uses [probot-config](https://github.com/probot/probot-config). This means you can inherit settings from another repo, and only override what you want to change.
+This app is built with [probot](https://github.com/probot/probot), and thus uses the [octokit-plugin-config](https://github.com/probot/octokit-plugin-config). This means you can inherit settings from another repo, and only override what you want to change.
 
 Individual settings in the arrays listed under `labels`, `teams` (once it is supported) and `branches` will be merged with the base repo if the `name` of an element in the array matches the `name` of an element in the corresponding array in the base repo. A possible future enhancement would be to make that work for the other settings arrays based on `username`, or `title`. This is not currently supported.
 
@@ -176,12 +204,24 @@ Until restrictions are added in this app, one way to preserve admin/push permiss
 
 ## Deployment
 
+<!--consumer-badges start -->
+
+![node][node-badge]
+
+<!--consumer-badges end -->
+
 See [docs/deploy.md](docs/deploy.md) if you would like to run your own instance of this plugin.
 
-[dependabot-link]: https://dependabot.com/
+[github-actions-ci-link]: https://github.com/repository-settings/app/actions?query=workflow%3A%22Node.js+CI%22+branch%3Amaster
 
-[dependabot-badge]: https://badgen.net/dependabot/probot/settings/?icon=dependabot
+[github-actions-ci-badge]: https://github.com/repository-settings/app/workflows/Node.js%20CI/badge.svg
 
-[github-actions-ci-link]: https://github.com/probot/settings/actions?query=workflow%3A%22Node.js+CI%22+branch%3Amaster
+[renovate-link]: https://renovatebot.com
 
-[github-actions-ci-badge]: https://github.com/probot/settings/workflows/Node.js%20CI/badge.svg
+[renovate-badge]: https://img.shields.io/badge/renovate-enabled-brightgreen.svg?logo=renovatebot
+
+[node-badge]: https://img.shields.io/node/v/probot-settings?logo=node.js
+
+[vercel-badge]: https://github.com/repository-settings/app/raw/master/assets/powered-by-vercel.svg
+
+[vercel-link]: https://vercel.com?utm_source=repository-settings&utm_campaign=oss

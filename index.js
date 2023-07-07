@@ -24,8 +24,7 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
       // https://github.blog/changelog/2019-10-16-changes-in-github-actions-push-event-payload/
       // So act like settings have changed if we run from an action
       if ('added' in commit || 'modified' in commit) {
-        return commit.added.includes(Settings.FILE_NAME) ||
-        commit.modified.includes(Settings.FILE_NAME)
+        return commit.added.includes(Settings.FILE_NAME) || commit.modified.includes(Settings.FILE_NAME)
       } else {
         return true
       }
