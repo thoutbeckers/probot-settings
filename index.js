@@ -1,5 +1,4 @@
 const mergeArrayByName = require('./lib/mergeArrayByName')
-const Settings = require("./lib/settings");
 
 /**
  * @param {import('probot').Probot} robot
