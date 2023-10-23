@@ -46,10 +46,15 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
   })
 
   robot.on('repository_dispatch', async context => {
-    // const {payload} = context
-    // const {repository} = payload
+    const { payload} = context
+    const { action} = payload
 
-    console.log("repository_dispatch!")
+    if (action !== 'update_settings') {
+      console.log("repository_dispatch but action is "+action)
+      return
+    }
+
+    console.log("repository_dispatch with action "+action)
     return syncSettings(context)
 
   })
