@@ -1,4 +1,5 @@
 const mergeArrayByName = require('./lib/mergeArrayByName')
+const Settings = require("./lib/settings");
 
 /**
  * @param {import('probot').Probot} robot
@@ -9,12 +10,18 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
     return Settings.sync(context.octokit, repo, config)
   }
 
+  robot.onAny(async context => {
+    console.log("event: "+context.payload.event_id)
+    console.log("payload: "+context.payload)
+  })
+
   robot.on('push', async context => {
     const { payload } = context
     const { repository } = payload
 
     const defaultBranch = payload.ref === 'refs/heads/' + repository.default_branch
     if (!defaultBranch) {
+      console.log.debug('Not working on the default branch, returning...')
       robot.log.debug('Not working on the default branch, returning...')
       return
     }
@@ -32,6 +39,7 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
 
     if (!settingsModified) {
       robot.log.debug(`No changes in '${Settings.FILE_NAME}' detected, returning...`)
+      console.log(`No changes in '${Settings.FILE_NAME}' detected, returning...`)
       return
     }
 
@@ -44,10 +52,12 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
 
     if (!Object.prototype.hasOwnProperty.call(changes, 'default_branch')) {
       robot.log.debug('Repository configuration was edited but the default branch was not affected, returning...')
+      console.log('Repository configuration was edited but the default branch was not affected, returning...')
       return
     }
 
     robot.log.debug(`Default branch changed from '${changes.default_branch.from}' to '${repository.default_branch}'`)
+    console.log(`Default branch changed from '${changes.default_branch.from}' to '${repository.default_branch}'`)
 
     return syncSettings(context)
   })
