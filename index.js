@@ -10,8 +10,8 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
   }
 
   robot.onAny(async context => {
-    console.log("event: "+context.payload.event_id)
-    console.log("payload: "+context.payload)
+    console.log("context:")
+    console.dir(context)
   })
 
   robot.on('push', async context => {
@@ -43,6 +43,15 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
     }
 
     return syncSettings(context)
+  })
+
+  robot.on('repository_dispatch', async context => {
+    // const {payload} = context
+    // const {repository} = payload
+
+    console.log("repository_dispatch!")
+    return syncSettings(context)
+
   })
 
   robot.on('repository.edited', async context => {
