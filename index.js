@@ -20,7 +20,7 @@ module.exports = (robot, _, Settings = require('./lib/settings')) => {
 
     const defaultBranch = payload.ref === 'refs/heads/' + repository.default_branch
     if (!defaultBranch) {
-      console.log.debug('Not working on the default branch, returning...')
+      console.log('Not working on the default branch, returning...')
       robot.log.debug('Not working on the default branch, returning...')
       return
     }
